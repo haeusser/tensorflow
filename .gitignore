@@ -13,3 +13,7 @@ node_modules
 *.pyc
 __pycache__
 *.swp
+
+# Phil's Setup Tools
+autoconfig.sh
+defaults
