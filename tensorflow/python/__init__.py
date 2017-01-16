@@ -77,6 +77,7 @@ from tensorflow.core.framework.graph_pb2 import *
 from tensorflow.core.framework.node_def_pb2 import *
 from tensorflow.core.framework.summary_pb2 import *
 from tensorflow.core.framework.attr_value_pb2 import *
+from tensorflow.core.protobuf.meta_graph_pb2 import TensorInfo
 from tensorflow.core.protobuf.config_pb2 import *
 from tensorflow.core.util.event_pb2 import *
 
@@ -102,6 +103,8 @@ from tensorflow.python.ops import sdca_ops as sdca
 from tensorflow.python.ops import image_ops as image
 from tensorflow.python.ops.losses import losses
 from tensorflow.python.ops import sets
+from tensorflow.python.saved_model import saved_model
+from tensorflow.python.util import compat
 from tensorflow.python.user_ops import user_ops
 from tensorflow.python.util import compat
 from tensorflow.python.summary import summary
@@ -167,6 +170,7 @@ _allowed_symbols = [
     'RunMetadata',
     'SessionLog',
     'Summary',
+    'TensorInfo',  # Used for tf.saved_model functionality.
 ]
 
 # The following symbols are kept for compatibility. It is our plan
@@ -178,6 +182,7 @@ _allowed_symbols.extend([
     'neg',  # use tf.negative instead.
     'sub',  # use tf.subtract instead.
     'create_partitioned_variables',
+    'concat_v2',  # use tf.concat instead
     'deserialize_many_sparse',
     'lin_space',
     'list_diff',  # Use tf.listdiff instead.
@@ -237,6 +242,7 @@ _allowed_symbols.extend([
     'nn',
     'python_io',
     'resource_loader',
+    'saved_model',
     'sdca',
     'sets',
     'summary',

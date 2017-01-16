@@ -957,6 +957,7 @@ cuda_py_test(
         "//tensorflow/python:test_ops",
         "//tensorflow/python:variables",
     ],
+    shard_count = 10,
 )
 
 cuda_py_test(
@@ -1417,9 +1418,9 @@ cuda_py_test(
 )
 
 cuda_py_test(
-    name = "pack_op_test",
+    name = "stack_op_test",
     size = "small",
-    srcs = ["pack_op_test.py"],
+    srcs = ["stack_op_test.py"],
     additional_deps = [
         "//third_party/py/numpy",
         "//tensorflow/python:array_ops",
@@ -1752,6 +1753,8 @@ cuda_py_test(
         "//tensorflow/python:nn_ops_gen",
         "//tensorflow/python:platform",
         "//tensorflow/python:sparse_ops",
+        "//tensorflow/python:random_ops",
+        "//tensorflow/python:variables",
     ],
 )
 
@@ -1880,9 +1883,9 @@ cuda_py_test(
 )
 
 cuda_py_test(
-    name = "unpack_op_test",
+    name = "unstack_op_test",
     size = "small",
-    srcs = ["unpack_op_test.py"],
+    srcs = ["unstack_op_test.py"],
     additional_deps = [
         "//third_party/py/numpy",
         "//tensorflow/python:array_ops",
@@ -1916,6 +1919,8 @@ cuda_py_test(
         "//third_party/py/numpy",
         "//tensorflow/python:client_testlib",
         "//tensorflow/python:framework_for_generated_wrappers",
+        "//tensorflow/python:gradients",
+        "//tensorflow/python:math_ops",
         "//tensorflow/python:nn_grad",
         "//tensorflow/python:nn_ops",
         "//tensorflow/python:nn_ops_gen",
@@ -2221,6 +2226,20 @@ cuda_py_test(
         "//tensorflow/python:framework_for_generated_wrappers",
     ],
     tags = ["notap"],  # http://b/31080670
+)
+
+cuda_py_test(
+    name = "stage_op_test",
+    size = "small",
+    srcs = ["stage_op_test.py"],
+    additional_deps = [
+        "//tensorflow/python:array_ops",
+        "//tensorflow/python:client_testlib",
+        "//tensorflow/python:framework_for_generated_wrappers",
+        "//tensorflow/python:math_ops",
+        "//tensorflow/python:util",
+        "//tensorflow/python:data_flow_ops",
+    ],
 )
 
 cuda_py_test(
