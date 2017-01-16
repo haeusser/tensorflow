@@ -66,6 +66,7 @@ try:
     from tensorflow.python import pywrap_tensorflow
 except ImportError:
   msg = """%s\n\nFailed to load the native TensorFlow runtime.\n
+Python should be run outside the TensorFlow root directory.\n
 See https://github.com/tensorflow/tensorflow/blob/master/tensorflow/g3doc/get_started/os_setup.md#import_error\n
 for some common reasons and solutions.  Include the entire stack trace
 above this error message when asking for help.""" % traceback.format_exc()
