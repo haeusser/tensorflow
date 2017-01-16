@@ -52,6 +52,7 @@ py_binary(
         "//tensorflow:tensorflow_py",
         "//tensorflow/contrib/ndlstm:all_files",
         "//tensorflow/contrib/nn:all_files",
+        "//tensorflow/contrib/semisup:all_files",        
         "//tensorflow/contrib/session_bundle:all_files",
         "//tensorflow/contrib/slim:all_files",
         "//tensorflow/contrib/slim/python/slim/data:all_files",
