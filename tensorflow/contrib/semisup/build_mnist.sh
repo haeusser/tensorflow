@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-bazel build -c opt --config=cuda :mnist_train_eval
+# to be run from tensorflow root directory
+bazel build -c opt --config=cuda //tensorflow/contrib/semisup:mnist_train_eval

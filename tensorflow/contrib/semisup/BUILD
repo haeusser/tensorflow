@@ -1,18 +1,38 @@
 # Description:
 #   TODO(haeusser)
 
-
 licenses(["notice"])  # Apache 2.0
 
 exports_files(["LICENSE"])
 
-package(default_visibility = ["//tensorflow:__subpackages__"])
+package(default_visibility = ["//visibility:public"])
 
 py_library(
     name = "semisup_py",
-    srcs = ["__init__.py"] + glob(["python/semisup/*.py"]),
+    srcs = ["__init__.py",
+	   ] + glob(["python/semisup/*.py"]),
     srcs_version = "PY2AND3",
+    visibility = ["//visibility:public"],
     deps = [
+	"//tensorflow/contrib/slim",
+        "//tensorflow/contrib/layers:layers_py",
+        "//tensorflow/python:array_ops",
+        "//tensorflow/python:clip_ops",
+        "//tensorflow/python:embedding_ops",
+        "//tensorflow/python:framework",
+        "//tensorflow/python:framework_for_generated_wrappers",
+        "//tensorflow/python:init_ops",        
+        "//tensorflow/python:layers",
+        "//tensorflow/python:math_ops",
+        "//tensorflow/python:nn_ops",
+        "//tensorflow/python:ops",
+        "//tensorflow/python:partitioned_variables",
+        "//tensorflow/python:platform",
+        "//tensorflow/python:rnn",
+        "//tensorflow/python:rnn_cell",
+        "//tensorflow/python:util",
+        "//tensorflow/python:variable_scope",
+        "//tensorflow/python:pywrap_tensorflow",
         "//third_party/py/numpy",
     ],
 )
@@ -20,13 +40,18 @@ py_library(
 
 py_binary(
     name = "mnist_train_eval",
-    srcs = ["python/semisup/mnist_train_eval.py"],
+    srcs = ["python/semisup/mnist_train_eval.py",
+           ],
     srcs_version = "PY2AND3",
+    visibility = ["//visibility:public"],
     deps = [
-
-        "//tensorflow/contrib/semisup:semisup_py",
-        "//tensorflow/contrib/slim",
-        "//tensorflow/python:training",
+	":semisup_py",
+	#"//tensorflow:tensorflow_py",
+        #"//tensorflow/contrib/semisup:semisup_py",
+        #"//tensorflow/contrib/slim",
+        #"//tensorflow/contrib/layers:layers_py",
+        #"//tensorflow/python:framework",
+        #"//tensorflow/python:platform",
 
     ],
 )
