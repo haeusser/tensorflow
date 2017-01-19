@@ -17,3 +17,4 @@ __pycache__
 # Phil's Setup Tools
 autoconfig.sh
 defaults
+/pip_install.sh
