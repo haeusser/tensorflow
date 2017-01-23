@@ -70,7 +70,7 @@ py_library(
 
 py_library(
     name = "synth_tools",
-    srcs = ["python/semisup/svhn_tools.py",
+    srcs = ["python/semisup/synth_tools.py",
            ],
     srcs_version = "PY2AND3",
     visibility = ["//tensorflow:__subpackages__"],    
