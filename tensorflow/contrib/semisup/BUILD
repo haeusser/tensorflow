@@ -112,6 +112,22 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "eval",
+    srcs = ["python/semisup/eval.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":semisup",
+        ":mnist_tools",
+        ":svhn_tools",
+        ":synth_tools",
+        ":stl10_tools",
+        "//tensorflow:tensorflow_py",
+        "//tensorflow/python:framework",
+        #"//tensorflow/python:pywrap_tensorflow",
+    ],
+)
+
 filegroup(
     name = "all_files",
     srcs = glob(
