@@ -106,11 +106,12 @@ py_binary(
         ":svhn_tools",
         ":synth_tools",
         ":stl10_tools",
-        "//tensorflow:tensorflow_py",
+        "//tensorflow:tensorflow_py",       
         "//tensorflow/python:framework",
         #"//tensorflow/python:pywrap_tensorflow",
     ],
 )
+
 
 py_binary(
     name = "eval",
@@ -125,6 +126,32 @@ py_binary(
         "//tensorflow:tensorflow_py",
         "//tensorflow/python:framework",
         #"//tensorflow/python:pywrap_tensorflow",
+    ],
+)
+
+py_binary(
+    name = "train_imagenet",
+    srcs = ["python/semisup/train_imagenet.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":semisup",
+        "//tensorflow:tensorflow_py",
+        "//tensorflow/python:framework",
+        "//tensorflow/contrib/slim:slim",        
+        "//tensorflow/contrib/slim:nets",         
+    ],
+)
+
+py_binary(
+    name = "eval_imagenet",
+    srcs = ["python/semisup/eval_imagenet.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":semisup",
+        "//tensorflow:tensorflow_py",
+        "//tensorflow/python:framework",
+        "//tensorflow/contrib/slim:slim",        
+        "//tensorflow/contrib/slim:nets",         
     ],
 )
 
