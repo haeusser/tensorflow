@@ -36,7 +36,9 @@ from tensorflow.python.platform import flags
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('package', 'svhn', 'Which package/dataset to work on.')
+flags.DEFINE_string('dataset', 'svhn', 'Which dataset to work on.')
+
+flags.DEFINE_string('architecture', 'svhn_model', 'Which dataset to work on.')
 
 flags.DEFINE_integer('eval_batch_size', 500, 'Batch size for eval loop.')
 
@@ -56,12 +58,13 @@ flags.DEFINE_string('master', '',
 
 def main(_):
   # Get dataset-related toolbox.
-  tools = getattr(semisup, FLAGS.package + '_tools')
+  dataset_tools = getattr(semisup, FLAGS.dataset + '_tools')
+  architecture = getattr(semisup.architectures, FLAGS.architecture)
 
-  num_labels = tools.NUM_LABELS
-  image_shape = tools.IMAGE_SHAPE
+  num_labels = dataset_tools.NUM_LABELS
+  image_shape = dataset_tools.IMAGE_SHAPE
 
-  test_images, test_labels = tools.get_data('test')
+  test_images, test_labels = dataset_tools.get_data('test')
 
   graph = tf.Graph()
   with graph.as_default():
@@ -81,7 +84,7 @@ def main(_):
 
     # Create function that defines the network.
     model_function = partial(
-        tools.default_model,
+        architecture,
         is_training=False,
         new_shape=new_shape,
         img_shape=image_shape,

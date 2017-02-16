@@ -36,13 +36,13 @@ from tensorflow.contrib.slim.python.slim.nets import inception_v3
 from tensorflow.python.platform import app
 from tensorflow.python.platform import flags
 
-sys.path.insert(0, '/usr/wiss/haeusser/libs/tfmodels/inception')
+sys.path.insert(0, '/usr/wiss/haeusser/libs/tfmodels/inception')  #TODO(haeusser) use slim
 from inception.imagenet_data import ImagenetData
 from inception import image_processing
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('package', 'svhn', 'Which package/dataset to work on.')
+flags.DEFINE_string('architecture', 'inception_model', 'Which dataset to work on.')
 
 flags.DEFINE_integer('eval_batch_size', 500, 'Batch size for eval loop.')
 
@@ -58,16 +58,6 @@ flags.DEFINE_string('logdir', '/tmp/semisup',
 
 flags.DEFINE_string('master', '',
                     'BNS name of the TensorFlow master to use.')
-
-def inception_model(inputs,
-                    emb_size=128,
-                    is_training=True):
-    _, end_points = inception_v3.inception_v3(inputs, is_training=is_training, reuse=True)
-    net = end_points['Mixed_7c']
-    net = slim.flatten(net, scope='flatten')
-    with slim.arg_scope([slim.fully_connected], normalizer_fn=None):
-        emb = slim.fully_connected(net, emb_size, scope='fc')
-    return emb
 
 
 def main(_):
@@ -89,7 +79,7 @@ def main(_):
         num_readers=FLAGS.num_readers)
 
     # Set up semisup model.
-    model = semisup.SemisupModel(inception_model, num_labels, image_shape, test_in=images)
+    model = semisup.SemisupModel(semisup.architectures.inception_model, num_labels, image_shape, test_in=images)
 
     # Add moving average variables.
     for var in tf.get_collection('moving_vars'):

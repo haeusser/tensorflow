@@ -35,7 +35,9 @@ from tensorflow.python.platform import flags
 FLAGS = flags.FLAGS
 
 
-flags.DEFINE_string('package', 'svhn', 'Which package/dataset to work on.')
+flags.DEFINE_string('dataset', 'svhn', 'Which dataset to work on.')
+
+flags.DEFINE_string('architecture', 'svhn_model', 'Which dataset to work on.')
 
 flags.DEFINE_integer(
     'sup_per_class', 100,
@@ -324,18 +326,17 @@ def piecewise_constant(x, boundaries, values, name=None):
 
 
 def main(_):
-  # Dynamic import of the set of tools containing the network architecture etc.
-  #tools = importlib.import_module('semisup.' + FLAGS.package + '_tools')  # TODO(haeusser) remove this and importlib
-  tools = getattr(semisup, FLAGS.package + '_tools')
+  dataset_tools = getattr(semisup, FLAGS.dataset + '_tools')
+  architecture = getattr(semisup.architectures, FLAGS.architecture)
 
-  num_labels = tools.NUM_LABELS
-  image_shape = tools.IMAGE_SHAPE
+  num_labels = dataset_tools.NUM_LABELS
+  image_shape = dataset_tools.IMAGE_SHAPE
   visit_weight = FLAGS.visit_weight
   logit_weight = FLAGS.logit_weight
 
   # Load data.
-  train_images, train_labels = tools.get_data('train')
-  train_images_unlabeled, _ = tools.get_data('unlabeled')
+  train_images, train_labels = dataset_tools.get_data('train')
+  train_images_unlabeled, _ = dataset_tools.get_data('unlabeled')
 
   # Sample labeled training subset.
   seed = FLAGS.sup_seed if FLAGS.sup_seed != -1 else None
@@ -378,9 +379,9 @@ def main(_):
 
       # Apply augmentation
       if FLAGS.augmentation:
-        if hasattr(tools, 'augmentation_params'):
+        if hasattr(dataset_tools, 'augmentation_params'):
           augmentation_function = partial(
-              apply_augmentation, params=tools.augmentation_params)
+              apply_augmentation, params=dataset_tools.augmentation_params)
         else:
           augmentation_function = apply_affine_augmentation
       else:
@@ -388,7 +389,7 @@ def main(_):
 
       # Create function that defines the network.
       model_function = partial(
-          tools.default_model,
+          architecture,
           new_shape=new_shape,
           img_shape=image_shape,
           augmentation_function=augmentation_function,

@@ -41,7 +41,9 @@ from inception import image_processing
 FLAGS = flags.FLAGS
 
 
-flags.DEFINE_string('package', 'svhn', 'Which package/dataset to work on.')
+flags.DEFINE_string('dataset', 'svhn', 'Which dataset to work on.')
+
+flags.DEFINE_string('architecture', 'svhn', 'Which dataset to work on.')
 
 flags.DEFINE_integer(
     'sup_per_class', 100,

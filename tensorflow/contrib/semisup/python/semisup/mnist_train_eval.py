@@ -25,7 +25,6 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
 import tensorflow.contrib.semisup as semisup
 
 from tensorflow.python.platform import app
@@ -61,7 +60,6 @@ flags.DEFINE_integer('max_steps', 20000, 'Number of training steps.')
 
 flags.DEFINE_string('logdir', '/tmp/semisup_mnist', 'Training log path.')
 
-
 mnist_tools = semisup.mnist_tools
 
 NUM_LABELS = mnist_tools.NUM_LABELS
@@ -79,7 +77,7 @@ def main(_):
 
   graph = tf.Graph()
   with graph.as_default():
-    model = semisup.SemisupModel(mnist_tools.mnist_model, NUM_LABELS,
+    model = semisup.SemisupModel(semisup.architectures.mnist_model, NUM_LABELS,
                                  IMAGE_SHAPE)
 
     # Set up inputs.
@@ -126,7 +124,7 @@ def main(_):
         test_err = (test_labels != test_pred).mean() * 100
         print(conf_mtx)
         print('Test error: %.2f %%' % test_err)
-        print
+        print()
 
         test_summary = tf.Summary(
             value=[tf.Summary.Value(
