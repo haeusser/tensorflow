@@ -20,13 +20,10 @@ evalutaion on the STL10 dataset.
 They are used in stl10_train.py and stl10_eval.py.
 
 """
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
-import tensorflow.contrib.slim as slim
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python.platform import gfile
 import data_dirs

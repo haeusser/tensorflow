@@ -20,6 +20,8 @@ evalutaion on the SVHN dataset.
 They are used in svhn_train.py and svhn_eval.py.
 
 """
+from __future__ import division
+from __future__ import print_function
 import numpy as np
 import scipy.io
 import data_dirs
