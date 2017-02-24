@@ -52,7 +52,7 @@ flags.DEFINE_integer('new_size', 0, 'If > 0, resize image to this width/height.'
 flags.DEFINE_integer('eval_interval_secs', 300,
                      'How many seconds between executions of the eval loop.')
 
-flags.DEFINE_string('logdir', '/tmp/semisup',
+flags.DEFINE_string('logdir', '/tmp/semisup/imagenet',
                     'Where the checkpoints are stored '
                     'and eval events will be written to.')
 
