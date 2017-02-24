@@ -20,12 +20,11 @@ This file contains functions that are needed for semisup training and
 evalutaion on the SVHN dataset.
 They are used in svhn_train.py and svhn_eval.py.
 """
-
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import os
 import tensorflow as tf
+
 import data_dirs
 
 DATADIR = data_dirs.imagenet
