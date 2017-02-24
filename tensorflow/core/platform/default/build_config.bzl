@@ -6,7 +6,7 @@ load("@protobuf//:protobuf.bzl", "py_proto_library")
 # configure may change the following lines
 WITH_GCP_SUPPORT = False
 WITH_HDFS_SUPPORT = False
-WITH_XLA_SUPPORT = False
+WITH_XLA_SUPPORT = True
 WITH_JEMALLOC = True
 
 # Appends a suffix to a list of deps.
