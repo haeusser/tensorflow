@@ -127,7 +127,7 @@ class LiteralUtil {
   static std::unique_ptr<Literal> Transpose(
       const Literal& literal, tensorflow::gtl::ArraySlice<int64> permutation);
 
-  // Creates a sub-array from the the given literal by extracting the indices
+  // Creates a sub-array from the given literal by extracting the indices
   // [start_index, limit_index) of each dimension. The result literal has the
   // same rank and layout as for the given literal. The number of indices in
   // start_indices and limit_indices must be the rank of the literal, and the
@@ -354,6 +354,17 @@ class LiteralUtil {
   // considered equal to true/false; other values are not considered equal to
   // true.
   static bool IsAll(const Literal& literal, int8 value);
+
+  // Like IsAll(const Literal&, int8), except we check whether the literal is
+  // equal to a particular floating-point number.
+  //
+  // If the literal is not a floating-point value, this always returns false.
+  //
+  // This casts value to the type of literal, then compares using ==.  The usual
+  // admonishments about floating-point equality checks apply.  We expect you to
+  // use this to check for values that can be expressed precisely as a float,
+  // e.g. -0.5.
+  static bool IsAllFloat(const Literal& literal, float value);
 
   // Returns whether the literal is zero at the specified index. The literal
   // must be an array.

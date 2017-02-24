@@ -162,6 +162,7 @@ cc_library(
         "//tensorflow/core:lib",
         "//tensorflow/core:lib_internal",
         "//tensorflow/core:protos_all_cc",
+        "//tensorflow/core/kernels:variable_ops",
     ],
 )
 
@@ -220,6 +221,7 @@ cc_test(
         ":compilation_passes",
         ":xla_local_launch_op",
         "//tensorflow/cc:cc_ops",
+        "//tensorflow/cc:cc_ops_internal",
         "//tensorflow/cc:function_ops",
         "//tensorflow/cc:ops",
         "//tensorflow/compiler/tf2xla:xla_compiler",
