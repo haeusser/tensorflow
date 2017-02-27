@@ -35,11 +35,14 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string('dataset', 'svhn', 'Which dataset to work on.')
 
+flags.DEFINE_string('target_dataset', None,
+                    'If specified, perform domain adaptation using dataset as source domain '
+                    'and target_dataset as target domain.')
+
 flags.DEFINE_string('architecture', 'svhn_model', 'Which dataset to work on.')
 
-flags.DEFINE_integer(
-    'sup_per_class', 100,
-    'Number of labeled samples used per class in total. -1 = all')
+flags.DEFINE_integer('sup_per_class', 100,
+                     'Number of labeled samples used per class in total. -1 = all')
 
 flags.DEFINE_integer('unsup_samples', -1,
                      'Number of unlabeled samples used in total. -1 = all.')
@@ -98,9 +101,8 @@ flags.DEFINE_integer('max_checkpoints', 5,
 flags.DEFINE_float('keep_checkpoint_every_n_hours', 5.0,
                    'How often checkpoints should be kept.')
 
-flags.DEFINE_float(
-    'batch_norm_decay', 0.99,
-    'Batch norm decay factor (only used for STL-10 at the moment.')
+flags.DEFINE_float('batch_norm_decay', 0.99,
+                   'Batch norm decay factor (only used for STL-10 at the moment.')
 
 flags.DEFINE_integer('remove_classes', 0,
                      'Remove this number of classes from the labeled set, '
@@ -109,15 +111,13 @@ flags.DEFINE_integer('remove_classes', 0,
 flags.DEFINE_string('master', '',
                     'BNS name of the TensorFlow master to use.')
 
-flags.DEFINE_integer(
-    'ps_tasks', 0,
-    'The number of parameter servers. If the value is 0, then the parameters '
-    'are handled locally by the worker.')
+flags.DEFINE_integer('ps_tasks', 0,
+                     'The number of parameter servers. If the value is 0, then the parameters '
+                     'are handled locally by the worker.')
 
-flags.DEFINE_integer(
-    'task', 0,
-    'The Task ID. This value is used when training with multiple workers to '
-    'identify each worker.')
+flags.DEFINE_integer('task', 0,
+                     'The Task ID. This value is used when training with multiple workers to '
+                     'identify each worker.')
 
 # TODO(haeusser) convert to argparse as gflags will be discontinued
 # flags.DEFINE_multi_float('custom_lr_vals', None,
@@ -156,10 +156,10 @@ def tf_affine_transformation(imgs, shape, batch_size):
 
 
 def apply_affine_augmentation(imgs, shape):
-    imgs = tf.unpack(imgs)
+    imgs = tf.unstack(imgs)
     batch_size = len(imgs)
     imgs = tf_affine_transformation(imgs, shape, batch_size)
-    imgs = tf.squeeze(tf.pack(imgs))
+    imgs = tf.squeeze(tf.stack(imgs))
     imgs.set_shape([batch_size] + shape)
     return imgs
 
@@ -181,7 +181,7 @@ def apply_augmentation_merged(inputs, shape, params):
 def apply_augmentation(inputs, shape, params):
     ap = params
     with tf.name_scope('augmentation'):
-        images = tf.unpack(inputs)
+        images = tf.unstack(inputs)
         out_images = []
         for image in images:
             # rotation
@@ -205,14 +205,15 @@ def apply_augmentation(inputs, shape, params):
                     name='random_crop_percentage')
 
                 crop_shape = 1.0 - crop_percentage
-                crop_shape = tf.mul(np.array(shape[:2], dtype=np.float32), crop_shape)
+                crop_shape = tf.multiply(np.array(shape[:2], dtype=np.float32), crop_shape)
                 assert crop_shape.get_shape() == 2, 'crop shape = {}'.format(crop_shape)
                 x = tf.cast(crop_shape, tf.int32)
-                cropped_h, cropped_w = tf.unpack(x)
-                [image] = slim.preprocess.random_crop([image], cropped_h, cropped_w)
+                cropped_h, cropped_w = tf.unstack(x)
+                [image] = tf.random_crop(image, [cropped_h, cropped_w])
                 image = tf.image.resize_nearest_neighbor([image], shape[:2])
 
             # color transform prep
+            raise NotImplementedError, "Need to migrate to tf.image"  # TODO(haeusser)
             color_transformations = []
             color_transformations.append(
                 preprocess.random_brightness_func(ap['brightness_max_delta']))
@@ -234,7 +235,7 @@ def apply_augmentation(inputs, shape, params):
             image, _ = preprocess.flip_dim([image])
             out_images.append(image)
 
-        return tf.pack(out_images)
+        return tf.stack(out_images)
 
 
 def logistic_growth(current_step, target, steps):
