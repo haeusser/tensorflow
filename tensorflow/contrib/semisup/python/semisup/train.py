@@ -464,7 +464,7 @@ def main(_):
 
             slim.learning.train(
                 train_op,
-                logdir=FLAGS.logdir, # + '/train',
+                logdir=FLAGS.logdir,  # + '/train',
                 save_summaries_secs=FLAGS.save_summaries_secs,
                 save_interval_secs=FLAGS.save_interval_secs,
                 master=FLAGS.master,
@@ -472,8 +472,10 @@ def main(_):
                 startup_delay_steps=(FLAGS.task * 20),
                 log_every_n_steps=FLAGS.log_every_n_steps,
                 session_config=config,
-                trace_every_n_steps=500,
-                saver=saver)
+                trace_every_n_steps=1000,
+                saver=saver,
+                number_of_steps=FLAGS.max_steps,
+            )
 
 
 if __name__ == '__main__':
