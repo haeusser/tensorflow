@@ -39,6 +39,9 @@ flags.DEFINE_string('target_dataset', None,
                     'If specified, perform domain adaptation using dataset as source domain '
                     'and target_dataset as target domain.')
 
+flags.DEFINE_string('target_dataset_split', 'unlabeled',
+                    'Which split of the target dataset to use for domain adaptation.')
+
 flags.DEFINE_string('architecture', 'svhn_model', 'Which dataset to work on.')
 
 flags.DEFINE_integer('sup_per_class', 100,
@@ -331,17 +334,19 @@ def piecewise_constant(x, boundaries, values, name=None):
 
 
 def main(_):
+    # Load data.
     dataset_tools = getattr(semisup, FLAGS.dataset + '_tools')
+    train_images, train_labels = dataset_tools.get_data('train')
+    if FLAGS.target_dataset is not None:
+        target_dataset_tools = getattr(semisup, FLAGS.target_dataset + '_tools')
+        train_images_unlabeled, _ = target_dataset_tools.get_data(FLAGS.target_dataset_split)
+    else:
+        train_images_unlabeled, _ = dataset_tools.get_data('unlabeled')
+
     architecture = getattr(semisup.architectures, FLAGS.architecture)
 
     num_labels = dataset_tools.NUM_LABELS
     image_shape = dataset_tools.IMAGE_SHAPE
-    visit_weight = FLAGS.visit_weight
-    logit_weight = FLAGS.logit_weight
-
-    # Load data.
-    train_images, train_labels = dataset_tools.get_data('train')
-    train_images_unlabeled, _ = dataset_tools.get_data('unlabeled')
 
     # Sample labeled training subset.
     seed = FLAGS.sup_seed if FLAGS.sup_seed != -1 else None
@@ -434,7 +439,7 @@ def main(_):
             if FLAGS.unsup_samples != 0:
                 model.add_semisup_loss(
                     t_sup_emb, t_unsup_emb, t_sup_labels, visit_weight=visit_weight)
-            model.add_logit_loss(t_sup_logit, t_sup_labels, weight=logit_weight)
+            model.add_logit_loss(t_sup_logit, t_sup_labels, weight=FLAGS.logit_weight)
 
             # Set up learning rate schedule if necessary.
             if FLAGS.custom_lr_vals is not None and FLAGS.custom_lr_steps is not None:
