@@ -72,10 +72,13 @@ flags.DEFINE_float('decay_steps', 60000,
 flags.DEFINE_float('visit_weight', 0.0, 'Weight for visit loss.')
 
 flags.DEFINE_string('visit_weight_envelope', None,
-                  'Increase visit weight with an envelope: [None, sigmoid, linear]')
+                    'Increase visit weight with an envelope: [None, sigmoid, linear]')
 
 flags.DEFINE_integer('visit_weight_envelope_steps', 20000,
                      'Number of steps at which envelope saturates.')
+
+flags.DEFINE_integer('visit_weight_envelope_delay', 3000,
+                     'Number of steps at which envelope starts.')
 
 flags.DEFINE_float('walker_weight', 1.0, 'Weight for walker loss.')
 
@@ -84,6 +87,9 @@ flags.DEFINE_string('walker_weight_envelope', None,
 
 flags.DEFINE_integer('walker_weight_envelope_steps', 20000,
                      'Number of steps at which envelope saturates.')
+
+flags.DEFINE_integer('walker_weight_envelope_delay', 3000,
+                     'Number of steps at which envelope starts.')
 
 flags.DEFINE_float('logit_weight', 1.0, 'Weight for logit loss.')
 
@@ -344,21 +350,23 @@ def piecewise_constant(x, boundaries, values, name=None):
         return tf.case(pred_fn_pairs, default, exclusive=True)
 
 
-def apply_envelope(type, step, final_weight, final_steps):
-    step = tf.cast(step, tf.float32)
+def apply_envelope(type, step, final_weight, final_steps, delay):
+    step = tf.cast(step-delay, tf.float32)
 
     if type is None:
-        return final_weight
+        value = final_weight
 
     elif type in ['sigmoid', 'sigmoidal', 'logistic', 'log']:
-        return logistic_growth(step, final_weight, final_steps)
+        value = logistic_growth(step, final_weight, final_steps)
 
     elif type in ['linear', 'lin']:
         m = float(final_weight) / final_steps
-        return tf.minimum(final_weight, m * step)
+        value = m * step
 
     else:
         raise NameError('Invalid type: ' + str(type))
+
+    return tf.clip_by_value(value, 0., final_weight)
 
 
 def main(_):
@@ -459,10 +467,10 @@ def main(_):
             # Add losses.
             visit_weight = apply_envelope(type=FLAGS.visit_weight_envelope, step=model.step,
                                           final_weight=FLAGS.visit_weight,
-                                          final_steps=FLAGS.visit_weight_envelope_steps)
+                                          final_steps=FLAGS.visit_weight_envelope_steps, delay=FLAGS.visit_weight_envelope_delay)
             walker_weight = apply_envelope(type=FLAGS.walker_weight_envelope, step=model.step,
                                            final_weight=FLAGS.walker_weight,
-                                           final_steps=FLAGS.walker_weight_envelope_steps)
+                                           final_steps=FLAGS.walker_weight_envelope_steps, delay=FLAGS.walker_weight_envelope_delay)
             tf.summary.scalar('Weights_Visit', visit_weight)
             tf.summary.scalar('Weights_Walker', walker_weight)
 
@@ -495,7 +503,7 @@ def main(_):
 
             config = tf.ConfigProto()
             config.gpu_options.allow_growth = True
-            #config.log_device_placement = True
+            # config.log_device_placement = True
 
             saver = tf_saver.Saver(max_to_keep=FLAGS.max_checkpoints,
                                    keep_checkpoint_every_n_hours=FLAGS.keep_checkpoint_every_n_hours)
