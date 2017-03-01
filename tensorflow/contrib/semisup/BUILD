@@ -38,6 +38,21 @@ py_library(
 )
 
 py_library(
+    name = "gtsrb_tools",
+    srcs = ["python/semisup/gtsrb_tools.py",
+            "python/semisup/data_dirs.py",
+           ],
+    srcs_version = "PY2AND3",
+    visibility = ["//tensorflow:__subpackages__"],
+    deps = [
+        #"//tensorflow/contrib/framework:framework_py",
+        "//tensorflow/python:framework",
+        "//tensorflow/contrib/slim:slim",
+        "//third_party/py/numpy",
+    ],
+)
+
+py_library(
     name = "stl10_tools",
     srcs = ["python/semisup/stl10_tools.py",
             "python/semisup/data_dirs.py",
@@ -109,6 +124,7 @@ py_binary(
     deps = [
         ":semisup",
         ":mnist_tools",
+        ":gtsrb_tools",
         ":svhn_tools",
         ":synth_tools",
         ":stl10_tools",
@@ -119,6 +135,26 @@ py_binary(
     ],
 )
 
+
+py_binary(
+    name = "gts_train_eval",
+    srcs = ["python/semisup/gts_train_eval.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":semisup",
+        ":mnist_tools",
+        ":gtsrb_tools",
+        ":svhn_tools",
+        ":synth_tools",
+        ":stl10_tools",
+        ":architectures",
+        "//tensorflow:tensorflow_py",
+        "//tensorflow/python:framework",
+        #"//tensorflow/python:framework",
+    ],
+)
+
+
 py_binary(
     name = "train",
     srcs = ["python/semisup/train.py"],
@@ -126,6 +162,7 @@ py_binary(
     deps = [
         ":semisup",
         ":mnist_tools",
+        ":gtsrb_tools",
         ":svhn_tools",
         ":synth_tools",
         ":stl10_tools",
@@ -144,6 +181,7 @@ py_binary(
     deps = [
         ":semisup",
         ":mnist_tools",
+        ":gtsrb_tools",
         ":svhn_tools",
         ":synth_tools",
         ":stl10_tools",

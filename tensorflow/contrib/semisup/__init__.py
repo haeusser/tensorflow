@@ -11,6 +11,7 @@ from __future__ import print_function
 
 from tensorflow.contrib.semisup.python.semisup.semisup import *
 from tensorflow.contrib.semisup.python.semisup import mnist_tools
+from tensorflow.contrib.semisup.python.semisup import gtsrb_tools
 from tensorflow.contrib.semisup.python.semisup import svhn_tools
 from tensorflow.contrib.semisup.python.semisup import stl10_tools
 from tensorflow.contrib.semisup.python.semisup import synth_tools
