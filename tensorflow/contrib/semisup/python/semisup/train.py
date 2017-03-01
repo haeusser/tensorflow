@@ -71,8 +71,19 @@ flags.DEFINE_float('decay_steps', 60000,
 
 flags.DEFINE_float('visit_weight', 0.0, 'Weight for visit loss.')
 
-flags.DEFINE_float('visit_weight_sigmoid', False,
-                   'Increase visit weight with a sigmoid envelope.')
+flags.DEFINE_bool('visit_weight_sigmoid', False,
+                  'Increase visit weight with a sigmoid envelope.')
+
+flags.DEFINE_integer('visit_weight_sigmoid_steps', 20000,
+                     'Number of steps at which sigmoid saturates.')
+
+flags.DEFINE_float('walker_weight', 1.0, 'Weight for walker loss.')
+
+flags.DEFINE_bool('walker_weight_sigmoid', False,
+                  'Increase walker weight with a sigmoid envelope.')
+
+flags.DEFINE_integer('walker_weight_sigmoid_steps', 20000,
+                     'Number of steps at which sigmoid saturates.')
 
 flags.DEFINE_float('logit_weight', 1.0, 'Weight for logit loss.')
 
@@ -431,14 +442,22 @@ def main(_):
             # Add losses.
             if FLAGS.visit_weight_sigmoid:
                 visit_weight = logistic_growth(model.step, FLAGS.visit_weight,
-                                               FLAGS.max_steps)
+                                               FLAGS.visit_weight_sigmoid_steps)
             else:
                 visit_weight = FLAGS.visit_weight
-            tf.summary.scalar('VisitLossWeight', visit_weight)
+            tf.summary.scalar('Weights_Visit', visit_weight)
+
+            if FLAGS.walker_weight_sigmoid:
+                walker_weight = logistic_growth(model.step, FLAGS.walker_weight,
+                                                FLAGS.walker_weight_sigmoid_steps)
+            else:
+                walker_weight = FLAGS.walker_weight
+            tf.summary.scalar('Weights_Walker', walker_weight)
 
             if FLAGS.unsup_samples != 0:
                 model.add_semisup_loss(
-                    t_sup_emb, t_unsup_emb, t_sup_labels, visit_weight=visit_weight)
+                    t_sup_emb, t_unsup_emb, t_sup_labels, visit_weight=visit_weight, walker_weight=walker_weight)
+
             model.add_logit_loss(t_sup_logit, t_sup_labels, weight=FLAGS.logit_weight)
 
             # Set up learning rate schedule if necessary.
@@ -470,7 +489,7 @@ def main(_):
 
             slim.learning.train(
                 train_op,
-                logdir=FLAGS.logdir,  # + '/train',
+                logdir=FLAGS.logdir + '/train',
                 save_summaries_secs=FLAGS.save_summaries_secs,
                 save_interval_secs=FLAGS.save_interval_secs,
                 master=FLAGS.master,
