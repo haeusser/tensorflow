@@ -81,6 +81,61 @@ def svhn_model(inputs,
     return emb
 
 
+def dann_model(inputs,
+               is_training=True,
+               augmentation_function=None,
+               emb_size=2048,
+               l2_weight=1e-4,
+               img_shape=None,
+               new_shape=None,
+               image_summary=False,
+               batch_norm_decay=0.99):  # pylint: disable=unused-argument
+    """Construct the image-to-embedding vector model."""
+    inputs = tf.cast(inputs, tf.float32)
+    if new_shape is not None:
+        shape = new_shape
+        inputs = tf.image.resize_images(
+            inputs,
+            tf.constant(new_shape[:2]),
+            method=tf.image.ResizeMethod.BILINEAR)
+    else:
+        shape = img_shape
+    if is_training and augmentation_function is not None:
+        inputs = augmentation_function(inputs, shape)
+    if image_summary:
+        tf.summary.image('Inputs', inputs, max_outputs=3)
+
+    net = inputs
+    mean = tf.reduce_mean(net, [1, 2], True)
+    std = tf.reduce_mean(tf.square(net - mean), [1, 2], True)
+    net = (net - mean) / (std + 1e-5)
+    with slim.arg_scope(
+            [slim.conv2d, slim.fully_connected],
+            activation_fn=tf.nn.relu,
+            weights_regularizer=slim.l2_regularizer(l2_weight)):
+        with slim.arg_scope([slim.dropout], is_training=is_training):
+            #TODO(tfrerix) ab hier
+            net = slim.conv2d(net, 32, [3, 3], scope='conv1')
+            net = slim.conv2d(net, 32, [3, 3], scope='conv1_2')
+            net = slim.conv2d(net, 32, [3, 3], scope='conv1_3')
+            net = slim.max_pool2d(net, [2, 2], scope='pool1')  # 14
+            net = slim.conv2d(net, 64, [3, 3], scope='conv2_1')
+            net = slim.conv2d(net, 64, [3, 3], scope='conv2_2')
+            net = slim.conv2d(net, 64, [3, 3], scope='conv2_3')
+            net = slim.max_pool2d(net, [2, 2], scope='pool2')  # 7
+            net = slim.conv2d(net, 128, [3, 3], scope='conv3')
+            net = slim.conv2d(net, 128, [3, 3], scope='conv3_2')
+            net = slim.conv2d(net, 128, [3, 3], scope='conv3_3')
+            net = slim.max_pool2d(net, [2, 2], scope='pool3')  # 3
+            net = slim.flatten(net, scope='flatten')
+
+            with slim.arg_scope([slim.fully_connected], normalizer_fn=None):
+                emb = slim.fully_connected(net, emb_size, scope='fc1')
+
+    return emb
+
+
+
 def stl10_model(inputs,
                 is_training=True,
                 augmentation_function=None,
