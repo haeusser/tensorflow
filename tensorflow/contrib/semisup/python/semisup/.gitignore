@@ -1,3 +1,4 @@
 *.kate-swp
 *.pyc
 .idea
+data_dirs.py
