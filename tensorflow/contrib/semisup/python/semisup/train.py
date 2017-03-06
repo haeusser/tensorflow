@@ -74,19 +74,19 @@ flags.DEFINE_float('visit_weight', 0.0, 'Weight for visit loss.')
 flags.DEFINE_string('visit_weight_envelope', None,
                     'Increase visit weight with an envelope: [None, sigmoid, linear]')
 
-flags.DEFINE_integer('visit_weight_envelope_steps', 20000,
-                     'Number of steps at which envelope saturates.')
+flags.DEFINE_integer('visit_weight_envelope_steps', -1,
+                     'Number of steps (after delay) at which envelope saturates. -1 = follow walker loss env.')
 
-flags.DEFINE_integer('visit_weight_envelope_delay', 3000,
-                     'Number of steps at which envelope starts.')
+flags.DEFINE_integer('visit_weight_envelope_delay', -1,
+                     'Number of steps at which envelope starts. -1 = follow walker loss env.')
 
 flags.DEFINE_float('walker_weight', 1.0, 'Weight for walker loss.')
 
 flags.DEFINE_string('walker_weight_envelope', None,
                     'Increase walker weight with an envelope: [None, sigmoid, linear]')
 
-flags.DEFINE_integer('walker_weight_envelope_steps', 20000,
-                     'Number of steps at which envelope saturates.')
+flags.DEFINE_integer('walker_weight_envelope_steps', 100,
+                     'Number of steps (after delay) at which envelope saturates.')
 
 flags.DEFINE_integer('walker_weight_envelope_delay', 3000,
                      'Number of steps at which envelope starts.')
@@ -352,6 +352,7 @@ def piecewise_constant(x, boundaries, values, name=None):
 
 def apply_envelope(type, step, final_weight, final_steps, delay):
     step = tf.cast(step-delay, tf.float32)
+    final_steps += delay
 
     if type is None:
         value = final_weight
@@ -465,9 +466,11 @@ def main(_):
             t_sup_logit = model.embedding_to_logit(t_sup_emb)
 
             # Add losses.
+            visit_weight_envelope_steps = FLAGS.walker_weight_envelope_steps if FLAGS.visit_weight_envelope_steps == -1 else FLAGS.visit_weight_envelope_steps
+            visit_weight_envelope_delay = FLAGS.walker_weight_envelope_delay if FLAGS.visit_weight_envelope_delay == -1 else FLAGS.visit_weight_envelope_delay
             visit_weight = apply_envelope(type=FLAGS.visit_weight_envelope, step=model.step,
                                           final_weight=FLAGS.visit_weight,
-                                          final_steps=FLAGS.visit_weight_envelope_steps, delay=FLAGS.visit_weight_envelope_delay)
+                                          final_steps=visit_weight_envelope_steps, delay=visit_weight_envelope_delay)
             walker_weight = apply_envelope(type=FLAGS.walker_weight_envelope, step=model.step,
                                            final_weight=FLAGS.walker_weight,
                                            final_steps=FLAGS.walker_weight_envelope_steps, delay=FLAGS.walker_weight_envelope_delay)
